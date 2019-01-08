@@ -18,6 +18,8 @@ func init() {
 
 func GetUsers(writer http.ResponseWriter, req *http.Request) {
 	log.Println("GetUsers")
+
+	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(users)
 }
 
@@ -26,6 +28,7 @@ func GetUser(writer http.ResponseWriter, req *http.Request) {
 	log.Println("GetUser")
 	for _, item := range users {
 		if item.Email == params["Email"] {
+			writer.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(writer).Encode(item)
 		}
 	}
@@ -35,16 +38,20 @@ func CreateUser(writer http.ResponseWriter, req *http.Request) {
 	var user model.User
 	_ = json.NewDecoder(req.Body).Decode(&user)
 	users = append(users, user)
+
+	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(user)
 }
 
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteUser(writer http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range users {
 		if item.Email == params["Email"] {
 			users = append(users[:index], users[index+1:]...)
 			break
 		}
-		json.NewEncoder(w).Encode(users)
+
+		writer.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(writer).Encode(users)
 	}
 }
