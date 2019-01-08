@@ -1,34 +1,19 @@
-package main
+package rest
 
 import (
-	"log"
 	"encoding/json"
-	"net/http"
+	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 )
 
-type User struct {
-	Name     string `json: "Name"`
-	Email    string `json: "Email"`
-	Password string `json: "Password"`
-	Role     string `json: "Role"`
-}
+var users []model.User
 
-var users []User
-
-const (
-	port = ":8080"
-)
-
-func main() {
-	users = append(users, User{Name: "Andi", Email:"andi@andi.de", Password:"1234", Role:"ADMIN"})
-	users = append(users, User{Name: "Sepp", Email:"sepp@internet.de", Password:"545646", Role:"ADMIN"})
-	users = append(users, User{Name: "Hans", Email:"hans@web.de", Password:"231234", Role:"ADMIN"})
-
-	router := GetRouter();
-
-	log.Println("Starting server on port " + port)
-	log.Fatal(http.ListenAndServe(port, router))
+func init() {
+	users = append(users, model.User{Name: "Andi", Email: "andi@andi.de", Password: "1234", Role: "ADMIN"})
+	users = append(users, model.User{Name: "Sepp", Email: "sepp@internet.de", Password: "545646", Role: "ADMIN"})
+	users = append(users, model.User{Name: "Hans", Email: "hans@web.de", Password: "231234", Role: "ADMIN"})
 }
 
 func GetUsers(writer http.ResponseWriter, req *http.Request) {
@@ -47,7 +32,7 @@ func GetUser(writer http.ResponseWriter, req *http.Request) {
 }
 
 func CreateUser(writer http.ResponseWriter, req *http.Request) {
-	var user User
+	var user model.User
 	_ = json.NewDecoder(req.Body).Decode(&user)
 	users = append(users, user)
 	json.NewEncoder(writer).Encode(user)
