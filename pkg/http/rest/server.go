@@ -2,8 +2,8 @@ package rest
 
 import (
 	"context"
-	"github.com/Sirupsen/logrus"
 	"github.com/andreas-bauer/simple-go-user-service/pkg/mongo"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -19,6 +19,10 @@ const (
 
 func (srv *Instance) Start() {
 	// Startup DB
+	srv.db = &mongo.DB{}
+
+	srv.db.Connect(*mongo.DefaultConnection)
+	srv.db.FindAll()
 	//srv.db = MustOpenDb(dataDir)
 	//defer srv.closeDb()
 

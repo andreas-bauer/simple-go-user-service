@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"log"
