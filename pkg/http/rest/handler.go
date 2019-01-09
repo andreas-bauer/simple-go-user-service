@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
+	"github.com/gorilla/mux"
 )
 
 var users []model.User
@@ -43,12 +45,20 @@ func GetUser(writer http.ResponseWriter, req *http.Request) {
 func CreateUser(writer http.ResponseWriter, req *http.Request) {
 	var user model.User
 	_ = json.NewDecoder(req.Body).Decode(&user)
+	user.Role = strings.ToUpper(user.Role)
 
 	_, err := doGetUser(user.Email)
 	if err == nil {
 		msg := fmt.Sprintf("User with email %v already exist!", user.Email)
 		log.Println(msg)
 		http.Error(writer, msg, http.StatusConflict)
+		return
+	}
+
+	if !isValidRole(user.Role) {
+		msg := fmt.Sprintf("User role '%v' is not a valid role. Available roles: %v", user.Role, model.Roles)
+		log.Println(msg)
+		http.Error(writer, msg, http.StatusInternalServerError)
 		return
 	}
 
@@ -79,4 +89,14 @@ func doGetUser(email string) (model.User, error) {
 	}
 
 	return model.User{}, errors.New("User with email " + email + " does not exist")
+}
+
+func isValidRole(role string) bool {
+	for _, item := range model.Roles {
+		if item == role {
+			return true
+		}
+	}
+
+	return false
 }
