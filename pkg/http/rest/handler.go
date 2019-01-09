@@ -2,6 +2,8 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/gorilla/mux"
 	"log"
@@ -26,17 +28,30 @@ func GetUsers(writer http.ResponseWriter, req *http.Request) {
 func GetUser(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	log.Println("GetUser")
-	for _, item := range users {
-		if item.Email == params["Email"] {
-			writer.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(writer).Encode(item)
-		}
+
+	user, err := doGetUser(params["Email"])
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, err.Error(), http.StatusNotFound)
+		return
 	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(user)
 }
 
 func CreateUser(writer http.ResponseWriter, req *http.Request) {
 	var user model.User
 	_ = json.NewDecoder(req.Body).Decode(&user)
+
+	_, err := doGetUser(user.Email)
+	if err == nil {
+		msg := fmt.Sprintf("User with email %v already exist!", user.Email)
+		log.Println(msg)
+		http.Error(writer, msg, http.StatusConflict)
+		return
+	}
+
 	users = append(users, user)
 
 	writer.Header().Set("Content-Type", "application/json")
@@ -54,4 +69,14 @@ func DeleteUser(writer http.ResponseWriter, r *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(writer).Encode(users)
 	}
+}
+
+func doGetUser(email string) (model.User, error) {
+	for _, item := range users {
+		if item.Email == email {
+			return item, nil
+		}
+	}
+
+	return model.User{}, errors.New("User with email " + email + " does not exist")
 }
