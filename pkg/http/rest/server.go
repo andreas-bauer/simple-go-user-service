@@ -20,15 +20,11 @@ const (
 func (srv *Instance) Start() {
 	// Startup DB
 	srv.db = &mongo.DB{}
-
 	srv.db.Connect(*mongo.DefaultConnection)
-	srv.db.FindAll()
-	//srv.db = MustOpenDb(dataDir)
-	//defer srv.closeDb()
 
 	// Startup HTTP
 	logrus.Info("Http Server starting with address ", port)
-	srv.httpServer = &http.Server{Addr: port, Handler: Router()}
+	srv.httpServer = &http.Server{Addr: port, Handler: Router(srv)}
 	err := srv.httpServer.ListenAndServe()
 
 	if err != http.ErrServerClosed {

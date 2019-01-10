@@ -27,11 +27,11 @@ func GetUsers(writer http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(writer).Encode(users)
 }
 
-func GetUser(writer http.ResponseWriter, req *http.Request) {
+func (srv *Instance) GetUser(writer http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	logrus.Info("Http Request: GET /users/", params["Email"])
 
-	user, err := doGetUser(params["Email"])
+	user, err := srv.db.FindByEmail(params["Email"])
 	if err != nil {
 		logrus.WithError(err)
 		http.Error(writer, err.Error(), http.StatusNotFound)

@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+type Datastore interface {
+	FindAll() ([]*model.User, error)
+	FindByEmail(email string) (*model.User, error)
+	Delete(email string) error
+	Save(email string) error
+}
+
 type DB struct {
 	collection *mongo.Collection
 	ctx        context.Context
@@ -83,8 +90,14 @@ func (db *DB) FindAll() {
 	}
 }
 
-func (r *DB) FindByEmail(email string) {
-	//TODO implement
+func (db *DB) FindByEmail(email string) (result model.User, err error) {
+	filter := bson.D{{"email", email}}
+	err = db.collection.FindOne(db.ctx, filter).Decode(&result)
+
+	if err != nil {
+		logrus.WithError(err).Error("Unable to find data for filter", filter)
+	}
+	return
 }
 
 func (r *DB) Delete(email string) {
