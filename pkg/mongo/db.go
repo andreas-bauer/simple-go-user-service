@@ -8,7 +8,6 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/readpref"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type Datastore interface {
@@ -20,17 +19,16 @@ type Datastore interface {
 
 type DB struct {
 	collection *mongo.Collection
-	ctx        context.Context
 }
 
-type MongoConnection struct {
+type Connection struct {
 	host     string
 	database string
 	username string
 	password string
 }
 
-func (con *MongoConnection) GetUri() (uri string) {
+func (con *Connection) GetUri() (uri string) {
 	uri = fmt.Sprintf(`mongodb://%s:%s@%s/%s`,
 		con.username,
 		con.password,
@@ -40,28 +38,25 @@ func (con *MongoConnection) GetUri() (uri string) {
 	return
 }
 
-var DefaultConnection = &MongoConnection{
+var DefaultConnection = &Connection{
 	host:     "localhost:27017",
 	username: "admin",
 	password: "admin",
 	database: "admin",
 }
 
-func (db *DB) Connect(con MongoConnection) {
+func (db *DB) Connect(con Connection) {
 	logrus.Info("Connect to mongo DB ...")
-
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db.ctx = ctx
 
 	uri := con.GetUri()
 
 	fmt.Println(uri)
-	client, err := mongo.Connect(ctx, uri)
+	client, err := mongo.Connect(context.TODO(), uri)
 	if err != nil {
 		logrus.WithError(err).Error("Unable to establish DB connection to ", uri)
 	}
 
-	err = client.Ping(ctx, readpref.Primary())
+	err = client.Ping(context.TODO(), readpref.Primary())
 	if err != nil {
 		logrus.WithError(err).Error("Unable to ping database")
 	}
@@ -70,14 +65,15 @@ func (db *DB) Connect(con MongoConnection) {
 }
 
 func (db *DB) FindAll() (results []model.User, err error) {
-	cur, err := db.collection.Find(db.ctx, nil)
+	ctx := context.TODO()
+	cur, err := db.collection.Find(ctx, nil)
 
 	if err != nil {
 		logrus.WithError(err).Error()
 	}
 
-	defer cur.Close(db.ctx)
-	for cur.Next(db.ctx) {
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
 		var user model.User
 		err = cur.Decode(&user)
 		results = append(results, user)
@@ -87,7 +83,7 @@ func (db *DB) FindAll() (results []model.User, err error) {
 
 func (db *DB) FindByEmail(email string) (result *model.User, err error) {
 	filter := bson.D{{"email", email}}
-	err = db.collection.FindOne(db.ctx, filter).Decode(&result)
+	err = db.collection.FindOne(context.TODO(), filter).Decode(&result)
 	return
 }
 
@@ -98,11 +94,11 @@ func (db *DB) ContainsUserWithEmail(email string) bool {
 
 func (db *DB) Delete(email string) (err error) {
 	filter := bson.D{{"email", email}}
-	_, err = db.collection.DeleteOne(db.ctx, filter)
+	_, err = db.collection.DeleteOne(context.TODO(), filter)
 	return
 }
 
 func (db *DB) Save(user model.User) (err error) {
-	_, err = db.collection.InsertOne(db.ctx, user)
+	_, err = db.collection.InsertOne(context.TODO(), user)
 	return
 }
