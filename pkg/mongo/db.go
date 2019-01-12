@@ -69,41 +69,40 @@ func (db *DB) Connect(con MongoConnection) {
 	db.collection = client.Database("userservice").Collection("user")
 }
 
-func (db *DB) FindAll() {
+func (db *DB) FindAll() (results []model.User, err error) {
 	cur, err := db.collection.Find(db.ctx, nil)
 
 	if err != nil {
 		logrus.WithError(err).Error()
 	}
+
 	defer cur.Close(db.ctx)
 	for cur.Next(db.ctx) {
-		var result bson.M
-		err := cur.Decode(&result)
-		if err != nil {
-			logrus.WithError(err).Error()
-		}
-		// do something with result....
-		fmt.Println(result)
-	}
-	if err := cur.Err(); err != nil {
-		logrus.WithError(err).Error()
-	}
-}
-
-func (db *DB) FindByEmail(email string) (result model.User, err error) {
-	filter := bson.D{{"email", email}}
-	err = db.collection.FindOne(db.ctx, filter).Decode(&result)
-
-	if err != nil {
-		logrus.WithError(err).Error("Unable to find data for filter", filter)
+		var user model.User
+		err = cur.Decode(&user)
+		results = append(results, user)
 	}
 	return
 }
 
-func (r *DB) Delete(email string) {
-	//TODO implement
+func (db *DB) FindByEmail(email string) (result *model.User, err error) {
+	filter := bson.D{{"email", email}}
+	err = db.collection.FindOne(db.ctx, filter).Decode(&result)
+	return
 }
 
-func (r *DB) Save(user model.User) {
-	//TODO implement
+func (db *DB) ContainsUserWithEmail(email string) bool {
+	user, _ := db.FindByEmail(email)
+	return user != nil
+}
+
+func (db *DB) Delete(email string) (err error) {
+	filter := bson.D{{"email", email}}
+	_, err = db.collection.DeleteOne(db.ctx, filter)
+	return
+}
+
+func (db *DB) Save(user model.User) (err error) {
+	_, err = db.collection.InsertOne(db.ctx, user)
+	return
 }
