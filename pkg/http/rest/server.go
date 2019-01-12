@@ -21,6 +21,7 @@ func (srv *Instance) Start() {
 	// Startup DB
 	srv.db = &mongo.DB{}
 	srv.db.Connect(*mongo.DefaultConnection)
+	srv.db.CreateDefaultAdminUserIfNotExist()
 
 	// Startup HTTP
 	logrus.Info("Http Server starting with address ", port)

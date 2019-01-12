@@ -46,11 +46,10 @@ var DefaultConnection = &Connection{
 }
 
 func (db *DB) Connect(con Connection) {
-	logrus.Info("Connect to mongo DB ...")
+	logrus.Info("Connect to mongo DB ", con.host)
 
 	uri := con.GetUri()
 
-	fmt.Println(uri)
 	client, err := mongo.Connect(context.TODO(), uri)
 	if err != nil {
 		logrus.WithError(err).Error("Unable to establish DB connection to ", uri)
@@ -101,4 +100,25 @@ func (db *DB) Delete(email string) (err error) {
 func (db *DB) Save(user model.User) (err error) {
 	_, err = db.collection.InsertOne(context.TODO(), user)
 	return
+}
+
+func (db *DB) CreateDefaultAdminUserIfNotExist() {
+	defaultAdminUser := model.User{
+		Name:     "GeneratedAdmin",
+		Email:    "admin@adminland.de",
+		Password: "$2a$10$zZeGbbtwwUC8gfpgAVx/v.hX95qMf/dIWOpgwiyZcPTcTxvNnBYN.",
+		Role:     model.Enum.ADMIN}
+
+	adminExists := db.ContainsUserWithEmail(defaultAdminUser.Email)
+	if adminExists {
+		return
+	}
+
+	logrus.Info("Create default admin user because it doesn't exist yet.")
+	err := db.Save(defaultAdminUser)
+
+	if err != nil {
+		logrus.WithError(err).Error("Unable to create default admin user.")
+	}
+
 }
