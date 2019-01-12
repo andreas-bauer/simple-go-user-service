@@ -1,0 +1,16 @@
+version: '3'
+services:
+  user-service:
+    build:
+      context: .
+    image: simple-go-user-service:latest
+    ports:
+      - "8080:8080"
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=admin

@@ -39,7 +39,7 @@ func (con *Connection) GetUri() (uri string) {
 }
 
 var DefaultConnection = &Connection{
-	host:     "localhost:27017",
+	host:     "mongodb:27017",
 	username: "admin",
 	password: "admin",
 	database: "admin",
