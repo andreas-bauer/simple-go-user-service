@@ -1,3 +1,6 @@
+#Copyright (c) 2019 Andreas Bauer
+#SPDX-License-Identifier: MIT
+
 # First stage: image to build Go application
 FROM golang:1.11 as builder
 

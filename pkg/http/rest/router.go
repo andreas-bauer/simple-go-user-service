@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019 Andreas Bauer
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 package rest
 
 import "github.com/gorilla/mux"

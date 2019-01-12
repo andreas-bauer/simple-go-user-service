@@ -1,3 +1,5 @@
+#Copyright (c) 2019 Andreas Bauer
+#SPDX-License-Identifier: MIT
 version: '3'
 services:
   user-service:
