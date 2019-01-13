@@ -11,6 +11,7 @@ import (
 	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
 )
@@ -50,6 +51,7 @@ func (srv *Instance) CreateUser(writer http.ResponseWriter, req *http.Request) {
 	var user model.User
 	_ = json.NewDecoder(req.Body).Decode(&user)
 	user.Role = strings.ToUpper(user.Role)
+	user.Password = hashAndSalt(user.Password)
 
 	existAlready := srv.db.ContainsUserWithEmail(user.Email)
 	if existAlready {
@@ -94,4 +96,15 @@ func isValidRole(role string) bool {
 	}
 
 	return false
+}
+
+func hashAndSalt(rawPW string) string {
+	pw := []byte(rawPW)
+	hash, err := bcrypt.GenerateFromPassword(pw, bcrypt.MinCost)
+
+	if err != nil {
+		logrus.WithError(err)
+	}
+
+	return string(hash)
 }
