@@ -11,6 +11,7 @@ import (
 	"github.com/andreas-bauer/simple-go-user-service/pkg/mongo"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -26,7 +27,7 @@ const (
 func (srv *Instance) Start() {
 	// Startup DB
 	srv.db = &mongo.DB{}
-	srv.db.Connect(*mongo.DefaultConnection)
+	srv.db.Connect(getDBConnectionSettings())
 	srv.db.CreateDefaultAdminUserIfNotExist()
 
 	// Startup HTTP
@@ -52,4 +53,30 @@ func (srv *Instance) Shutdown() {
 			srv.httpServer = nil
 		}
 	}
+}
+
+func getDBConnectionSettings() (con mongo.Connection) {
+	con = *mongo.DefaultConnection
+
+	host, hostExist := os.LookupEnv("MONGO_HOSTNAME")
+	if hostExist {
+		con.Host = host
+	}
+
+	username, usernameExist := os.LookupEnv("MONGO_USERNAME")
+	if usernameExist {
+		con.Username = username
+	}
+
+	pw, pwExist := os.LookupEnv("MONGO_PASSWORD")
+	if pwExist {
+		con.Password = pw
+	}
+
+	authDb, authDbExist := os.LookupEnv("MONGO_AUTH_DB")
+	if authDbExist {
+		con.Database = authDb
+	}
+
+	return
 }

@@ -8,6 +8,11 @@ services:
     image: simple-go-user-service:latest
     ports:
       - "8080:8080"
+    environment:
+      - MONGO_HOSTNAME=mongodb
+      - MONGO_USERNAME=admin
+      - MONGO_PASSWORD=admin
+      - MONGO_AUTH_DATABASE=admin
   mongodb:
     image: mongo:latest
     ports:

@@ -27,31 +27,31 @@ type DB struct {
 }
 
 type Connection struct {
-	host     string
-	database string
-	username string
-	password string
+	Host     string
+	Database string
+	Username string
+	Password string
 }
 
 func (con *Connection) GetUri() (uri string) {
 	uri = fmt.Sprintf(`mongodb://%s:%s@%s/%s`,
-		con.username,
-		con.password,
-		con.host,
-		con.database,
+		con.Username,
+		con.Password,
+		con.Host,
+		con.Database,
 	)
 	return
 }
 
 var DefaultConnection = &Connection{
-	host:     "mongodb:27017",
-	username: "admin",
-	password: "admin",
-	database: "admin",
+	Host:     "localhost:27017",
+	Username: "admin",
+	Password: "admin",
+	Database: "admin",
 }
 
 func (db *DB) Connect(con Connection) {
-	logrus.Info("Connect to mongo DB ", con.host)
+	logrus.Info("Connect to MongoDB with URI ", con.GetUri())
 
 	uri := con.GetUri()
 
@@ -62,7 +62,7 @@ func (db *DB) Connect(con Connection) {
 
 	err = client.Ping(context.TODO(), readpref.Primary())
 	if err != nil {
-		logrus.WithError(err).Error("Unable to ping database")
+		logrus.WithError(err).Error("Unable to ping Database")
 	}
 
 	db.collection = client.Database("userservice").Collection("user")
