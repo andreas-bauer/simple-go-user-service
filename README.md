@@ -3,6 +3,25 @@
 The purpose of this project is to gain experience in Golang for micro-service development.
 Also, a small comparison with Spring Boot should show how the resource footprint of both technologies differs.
 
+## Build and Run
+
+Run the application with go run:
+```
+cd cmd/user-service
+go run main.go
+```
+
+Build a binary:
+```
+cd cmd/user-service
+go build
+```
+
+To use the application within a Docker container you can use `docker-compose`, which will also start a container for MongoDB.
+```
+docker-compose up
+```
+
 ## API Endpoints
 
 | Operation | URI  | Description  | 
