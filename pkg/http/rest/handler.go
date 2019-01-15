@@ -8,12 +8,13 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"strings"
 )
 
 func (srv *Instance) GetUsers(writer http.ResponseWriter, req *http.Request) {

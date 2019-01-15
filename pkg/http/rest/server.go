@@ -8,11 +8,12 @@ package rest
 
 import (
 	"context"
-	"github.com/andreas-bauer/simple-go-user-service/pkg/mongo"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/andreas-bauer/simple-go-user-service/pkg/mongo"
+	"github.com/sirupsen/logrus"
 )
 
 type Instance struct {

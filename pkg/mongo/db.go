@@ -8,6 +8,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+
 	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
