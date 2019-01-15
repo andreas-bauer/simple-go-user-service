@@ -6,8 +6,8 @@
 package model
 
 type User struct {
-	Name     string `json: "Name"`
-	Email    string `json: "Email"`
-	Password string `json: "Password"`
-	Role     string `json: "Role"`
+	Name     string `json: "name"`
+	Email    string `json: "email"`
+	Password string `json: "password"`
+	Role     string `json: "role"`
 }
