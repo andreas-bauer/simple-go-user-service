@@ -113,7 +113,7 @@ func (db *DB) CreateDefaultAdminUserIfNotExist() {
 		Name:     "GeneratedAdmin",
 		Email:    "admin@adminland.de",
 		Password: "$2a$10$zZeGbbtwwUC8gfpgAVx/v.hX95qMf/dIWOpgwiyZcPTcTxvNnBYN.",
-		Role:     model.Enum.ADMIN}
+		Role:     model.ADMIN}
 
 	adminExists := db.ContainsUserWithEmail(defaultAdminUser.Email)
 	if adminExists {

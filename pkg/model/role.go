@@ -5,14 +5,9 @@
  */
 package model
 
-type Role struct {
-	ADMIN  string
-	PUBLIC string
-}
+const (
+	ADMIN  = "ADMIN"
+	PUBLIC = "PUBLIC"
+)
 
-var Enum = &Role{
-	ADMIN:  "ADMIN",
-	PUBLIC: "PUBLIC",
-}
-
-var Roles = [...]string{Enum.ADMIN, Enum.PUBLIC}
+var Roles = [...]string{ADMIN, PUBLIC}
