@@ -9,103 +9,86 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
+	"github.com/andreas-bauer/simple-go-user-service/pkg/user"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func (srv *Instance) GetUsers(writer http.ResponseWriter, req *http.Request) {
-	logrus.Info("Http Request: GET /users/")
-
-	users, err := srv.db.FindAll()
-	if err != nil {
-		logrus.WithError(err)
-		writer.Header().Set("Content-Type", "text/plain")
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(users)
+func Router(service *user.Service) *mux.Router {
+	router := mux.NewRouter()
+	router.HandleFunc("/users/", handleGetAllUsers(service)).Methods("GET")
+	router.HandleFunc("/users/{Email}", handleGetUser(service)).Methods("GET")
+	router.HandleFunc("/users/", handleCreateUser(service)).Methods("POST")
+	router.HandleFunc("/users/{Email}", handleDeleteUser(service)).Methods("DELETE")
+	return router
 }
 
-func (srv *Instance) GetUser(writer http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	logrus.Info("Http Request: GET /users/", params["Email"])
+func handleGetAllUsers(service *user.Service) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.Info("Http Request: GET /users/")
 
-	user, err := srv.db.FindByEmail(params["Email"])
-	if err != nil {
-		logrus.WithError(err)
-		http.Error(writer, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(user)
-}
-
-func (srv *Instance) CreateUser(writer http.ResponseWriter, req *http.Request) {
-	logrus.Info("Http Request: POST /users/")
-	var user model.User
-	_ = json.NewDecoder(req.Body).Decode(&user)
-	user.Role = strings.ToUpper(user.Role)
-	user.Password = hashAndSalt(user.Password)
-
-	existAlready := srv.db.ContainsUserWithEmail(user.Email)
-	if existAlready {
-		msg := fmt.Sprintf("User with email %v already exist!", user.Email)
-		logrus.Error(msg)
-		http.Error(writer, msg, http.StatusConflict)
-		return
-	}
-
-	if !isValidRole(user.Role) {
-		msg := fmt.Sprintf("User role '%v' is not a valid role. Available roles: %v", user.Role, model.Roles)
-		logrus.Error(msg)
-		http.Error(writer, msg, http.StatusInternalServerError)
-		return
-	}
-
-	srv.db.Save(user)
-
-	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(user)
-}
-
-func (srv *Instance) DeleteUser(writer http.ResponseWriter, req *http.Request) {
-	logrus.Info("Http Request: DELETE /users/")
-	params := mux.Vars(req)
-	err := srv.db.Delete(params["Email"])
-
-	if err != nil {
-		writer.Header().Set("Content-Type", "text/plain")
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	writer.WriteHeader(http.StatusOK)
-}
-
-func isValidRole(role string) bool {
-	for _, item := range model.Roles {
-		if item == role {
-			return true
+		users, err := service.FindAll()
+		if err != nil {
+			logrus.WithError(err)
+			w.Header().Set("Content-Type", "text/plain")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
-	}
 
-	return false
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
+	})
 }
 
-func hashAndSalt(rawPW string) string {
-	pw := []byte(rawPW)
-	hash, err := bcrypt.GenerateFromPassword(pw, bcrypt.MinCost)
+func handleGetUser(service *user.Service) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		logrus.Info("Http Request: GET /users/", params["Email"])
 
-	if err != nil {
-		logrus.WithError(err)
-	}
+		user, err := service.FindByEmail(params["Email"])
+		if err != nil {
+			logrus.WithError(err)
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 
-	return string(hash)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user)
+	})
+}
+
+func handleCreateUser(service *user.Service) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.Info("Http Request: POST /users/")
+		var user user.User
+		_ = json.NewDecoder(r.Body).Decode(&user)
+
+		err := service.Save(&user)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to store user %v", user)
+			logrus.WithError(err)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user)
+	})
+}
+
+func handleDeleteUser(service *user.Service) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.Info("Http Request: DELETE /users/")
+		params := mux.Vars(r)
+		err := service.Delete(params["Email"])
+
+		if err != nil {
+			w.Header().Set("Content-Type", "text/plain")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
 }

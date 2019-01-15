@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: MIT
  */
-package model
+package user
 
 type User struct {
 	Name     string `json: "name"`

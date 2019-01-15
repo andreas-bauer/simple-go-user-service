@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/andreas-bauer/simple-go-user-service/pkg/mongo"
+	"github.com/andreas-bauer/simple-go-user-service/pkg/user"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,7 +34,9 @@ func (srv *Instance) Start() {
 
 	// Startup HTTP
 	logrus.Info("Http Server starting with address ", port)
-	srv.httpServer = &http.Server{Addr: port, Handler: Router(srv)}
+
+	service := user.NewService(srv.db)
+	srv.httpServer = &http.Server{Addr: port, Handler: Router(service)}
 	err := srv.httpServer.ListenAndServe()
 
 	if err != http.ErrServerClosed {

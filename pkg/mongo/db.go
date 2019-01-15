@@ -9,19 +9,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/andreas-bauer/simple-go-user-service/pkg/model"
+	"github.com/andreas-bauer/simple-go-user-service/pkg/user"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/readpref"
 	"github.com/sirupsen/logrus"
 )
-
-type Datastore interface {
-	FindAll() ([]*model.User, error)
-	FindByEmail(email string) (*model.User, error)
-	Delete(email string) error
-	Save(email string) error
-}
 
 type DB struct {
 	collection *mongo.Collection
@@ -69,7 +62,7 @@ func (db *DB) Connect(con Connection) {
 	db.collection = client.Database("userservice").Collection("user")
 }
 
-func (db *DB) FindAll() (results []model.User, err error) {
+func (db *DB) FindAll() (results []*user.User, err error) {
 	ctx := context.TODO()
 	cur, err := db.collection.Find(ctx, nil)
 
@@ -79,14 +72,14 @@ func (db *DB) FindAll() (results []model.User, err error) {
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
-		var user model.User
+		var user user.User
 		err = cur.Decode(&user)
-		results = append(results, user)
+		results = append(results, &user)
 	}
 	return
 }
 
-func (db *DB) FindByEmail(email string) (result *model.User, err error) {
+func (db *DB) FindByEmail(email string) (result *user.User, err error) {
 	filter := bson.D{{"email", email}}
 	err = db.collection.FindOne(context.TODO(), filter).Decode(&result)
 	return
@@ -103,17 +96,17 @@ func (db *DB) Delete(email string) (err error) {
 	return
 }
 
-func (db *DB) Save(user model.User) (err error) {
+func (db *DB) Save(user *user.User) (err error) {
 	_, err = db.collection.InsertOne(context.TODO(), user)
 	return
 }
 
 func (db *DB) CreateDefaultAdminUserIfNotExist() {
-	defaultAdminUser := model.User{
+	defaultAdminUser := user.User{
 		Name:     "GeneratedAdmin",
 		Email:    "admin@adminland.de",
 		Password: "$2a$10$zZeGbbtwwUC8gfpgAVx/v.hX95qMf/dIWOpgwiyZcPTcTxvNnBYN.",
-		Role:     model.ADMIN}
+		Role:     user.ADMIN}
 
 	adminExists := db.ContainsUserWithEmail(defaultAdminUser.Email)
 	if adminExists {
@@ -121,7 +114,7 @@ func (db *DB) CreateDefaultAdminUserIfNotExist() {
 	}
 
 	logrus.Info("Create default admin user because it doesn't exist yet.")
-	err := db.Save(defaultAdminUser)
+	err := db.Save(&defaultAdminUser)
 
 	if err != nil {
 		logrus.WithError(err).Error("Unable to create default admin user.")
