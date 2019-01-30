@@ -1,3 +1,6 @@
+[![codebeat badge](https://codebeat.co/badges/a6bfe60c-0874-4616-aa9f-e93f66300c14)](https://codebeat.co/projects/github-com-andreas-bauer-simple-go-user-service-master)
+![license](https://img.shields.io/github/license/andreas-bauer/simple-go-user-service.svg)
+
 # Simple Go (User) Micro-Service
 
 The purpose of this project is to gain experience in Golang for micro-service development.
