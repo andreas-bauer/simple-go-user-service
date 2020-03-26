@@ -1,4 +1,4 @@
-[![codebeat badge](https://codebeat.co/badges/a6bfe60c-0874-4616-aa9f-e93f66300c14)](https://codebeat.co/projects/github-com-andreas-bauer-simple-go-user-service-master)
+[![codebeat badge](https://codebeat.co/badges/e99dffb4-4ec0-4b40-9159-3e153694c9b2)](https://codebeat.co/projects/github-com-andreas-bauer-simple-go-user-service-master)
 ![license](https://img.shields.io/github/license/andreas-bauer/simple-go-user-service.svg)
 
 # Simple Go (User) Micro-Service
