@@ -2,7 +2,7 @@
 #SPDX-License-Identifier: MIT
 
 # First stage: image to build Go application
-FROM golang:1.14-alpine as builder
+FROM golang:1.15-alpine as builder
 
 WORKDIR /build
 COPY . .
