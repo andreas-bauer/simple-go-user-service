@@ -9,6 +9,13 @@ Also, a small comparison with Spring Boot should show how the resource footprint
 
 ## Build and Run
 
+The Makefile provides some shortcuts for common commands.
+Use the `help` argument to display all available commands.
+
+```sh
+make help
+```
+
 Run the application with go run:
 
 ```sh
