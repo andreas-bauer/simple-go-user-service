@@ -10,10 +10,11 @@ import (
 	"fmt"
 
 	"github.com/andreas-bauer/simple-go-user-service/pkg/user"
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/readpref"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type DB struct {
@@ -49,7 +50,7 @@ func (db *DB) Connect(con Connection) {
 
 	uri := con.GetUri()
 
-	client, err := mongo.Connect(context.TODO(), uri)
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		logrus.WithError(err).Error("Unable to establish DB connection to ", uri)
 	}

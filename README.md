@@ -11,21 +11,21 @@ Also, a small comparison with Spring Boot should show how the resource footprint
 
 Run the application with go run:
 
-```
+```sh
 cd cmd/user-service
 go run main.go
 ```
 
 Build a binary:
 
-```
+```sh
 cd cmd/user-service
 go build
 ```
 
 To use the application within a Docker container you can use `docker-compose`, which will also start a container for MongoDB.
 
-```
+```sh
 docker-compose up
 ```
 
@@ -76,6 +76,6 @@ Open J9 helps to reduce the memory footprint of Java applications.
 
 ## License
 
-Copyright (c) 2019 Andreas Bauer
+Copyright (c) 2019-2023 Andreas Bauer
 
 See [LICENSE](https://github.com/andreas-bauer/simple-go-user-service/blob/master/LICENSE) file in the root of this project for license details.
