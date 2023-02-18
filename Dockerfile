@@ -1,4 +1,4 @@
-#Copyright (c) 2019 Andreas Bauer
+#Copyright (c) 2019-2023 Andreas Bauer
 #SPDX-License-Identifier: MIT
 
 # First stage: image to build Go application
