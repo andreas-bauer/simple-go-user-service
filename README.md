@@ -9,6 +9,12 @@ Also, a small comparison with Spring Boot should show how the resource footprint
 
 ## Build and Run
 
+You can use some `make` as a shortcut for some Go commands.
+
+```sh
+make help
+```
+
 Run the application with go run:
 
 ```sh
